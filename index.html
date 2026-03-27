@@ -1,25 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>My First Site</title>
-  <style>
-    body {
-      font-family: Arial;
-      background: #111;
-      color: white;
-      text-align: center;
-      padding-top: 100px;
-    }
-    h1 {
-      font-size: 3em;
-    }
-  </style>
-</head>
-<body>
+<input id="email" placeholder="Email">
+<input id="password" type="password" placeholder="Password">
+<button onclick="login()">Login</button>
 
-  <h1>It works 🎉</h1>
-  <p>This site is live on GitHub Pages.</p>
+<p id="status"></p>
 
-</body>
-</html>
+<script>
+async function login() {
+  const email = document.getElementById("email").value;
+  const password = document.getElementById("password").value;
+
+  const url = "https://script.google.com/macros/s/AKfycbyS-svkchvmd4EHLu7MYGe67uab2bX-RqAk3HnCf1kk9EwR-A6LJQBkuXClE98BGzvVFw/exec";
+
+  const res = await fetch(url + "?email=" + encodeURIComponent(email) + "&password=" + encodeURIComponent(password));
+  const data = await res.json();
+
+  if (data.success) {
+    document.getElementById("status").innerText = "Login successful!";
+  } else {
+    document.getElementById("status").innerText = "Invalid login";
+  }
+}
+</script>
