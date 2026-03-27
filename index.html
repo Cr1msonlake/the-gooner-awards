@@ -1,23 +1,137 @@
-<input id="email" placeholder="Email">
-<input id="password" type="password" placeholder="Password">
-<button onclick="login()">Login</button>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-<p id="status"></p>
+    .container {
+      background: #1a1a1a;
+      padding: 30px;
+      border-radius: 12px;
+      width: 300px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: none;
+      border-radius: 6px;
+      background: #2a2a2a;
+      color: white;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #f7a400ff;
+      color: black;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.9;
+    }
+
+    .toggle {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      color: #f7a400ff;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2 id="title">Login</h2>
+
+  <input type="text" id="email" placeholder="Email / Username">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="submit()">Continue</button>
+
+  <div class="toggle" onclick="toggleMode()">
+    Switch to Sign Up
+  </div>
+
+  <p id="status"></p>
+</div>
 
 <script>
-async function login() {
+let isSignup = false;
+
+const API_URL = "YOUR_APPS_SCRIPT_URL";
+
+function toggleMode() {
+  isSignup = !isSignup;
+  document.getElementById("title").innerText = isSignup ? "Sign Up" : "Login";
+  document.querySelector(".toggle").innerText = isSignup ? "Switch to Login" : "Switch to Sign Up";
+}
+
+async function submit() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
-  const url = "https://script.google.com/macros/s/AKfycbyS-svkchvmd4EHLu7MYGe67uab2bX-RqAk3HnCf1kk9EwR-A6LJQBkuXClE98BGzvVFw/exec";
+  if (!email || !password) {
+    document.getElementById("status").innerText = "Fill in all fields";
+    return;
+  }
 
-  const res = await fetch(url + "?email=" + encodeURIComponent(email) + "&password=" + encodeURIComponent(password));
-  const data = await res.json();
+  if (isSignup) {
+    // CREATE ACCOUNT
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: new URLSearchParams({ email, password })
+    });
 
-  if (data.success) {
-    document.getElementById("status").innerText = "Login successful!";
+    const data = await res.json();
+
+    if (data.success) {
+      document.getElementById("status").innerText = "Account created! You can now log in.";
+      toggleMode();
+    }
   } else {
-    document.getElementById("status").innerText = "Invalid login";
+    // LOGIN
+    const res = await fetch(API_URL + "?email=" + encodeURIComponent(email) + "&password=" + encodeURIComponent(password));
+    const data = await res.json();
+
+    if (data.success) {
+      // Redirect to another page
+      window.location.href = "dashboard.html";
+    } else {
+      document.getElementById("status").innerText = "Invalid login";
+    }
   }
 }
 </script>
+
+</body>
+</html>
