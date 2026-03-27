@@ -76,7 +76,7 @@
   <input type="text" id="email" placeholder="Email / Username">
   <input type="password" id="password" placeholder="Password">
 
-  <button onclick="submit()">Continue</button>
+  <button onclick="login()">Continue</button>
 
   <div class="toggle" onclick="toggleMode()">
     Switch to Sign Up
@@ -87,8 +87,7 @@
 
 <script>
 let isSignup = false;
-
-const API_URL = "https://script.google.com/macros/s/AKfycbxiGTUhCb0UZQuJkF1p2cbdwh7xrVOAtIVi1ptL4QIAD_EilPA_E7tM25IIHEc8vPLvkw/exec";
+const API_URL = "YOUR_APPS_SCRIPT_URL";
 
 function toggleMode() {
   isSignup = !isSignup;
@@ -96,7 +95,7 @@ function toggleMode() {
   document.querySelector(".toggle").innerText = isSignup ? "Switch to Login" : "Switch to Sign Up";
 }
 
-async function submit() {
+async function login() {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
@@ -105,31 +104,41 @@ async function submit() {
     return;
   }
 
-  if (isSignup) {
-    // CREATE ACCOUNT
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: new URLSearchParams({ email, password })
-    });
+  try {
+    if (isSignup) {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: new URLSearchParams({
+          action: "saveUser",
+          email,
+          password
+        })
+      });
 
-    const data = await res.json();
+      const data = await res.json();
 
-    if (data.success) {
-      document.getElementById("status").innerText = "Account created! You can now log in.";
-      toggleMode();
-    }
-  } else {
-    // LOGIN
-    const res = await fetch(API_URL + "?email=" + encodeURIComponent(email) + "&password=" + encodeURIComponent(password));
-    const data = await res.json();
+      if (data.success) {
+        document.getElementById("status").innerText = "Account created!";
+        toggleMode();
+      } else {
+        document.getElementById("status").innerText = "Signup failed";
+      }
 
-    if (data.success) {
-      localStorage.setItem("user", email);  // ✅ save logged-in user
-      window.location.href = "dashboard.html";
-    }
     } else {
-      document.getElementById("status").innerText = "Invalid login";
+      const res = await fetch(API_URL + "?action=login&email=" + encodeURIComponent(email) + "&password=" + encodeURIComponent(password));
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem("user", email);
+        window.location.href = "dashboard.html";
+      } else {
+        document.getElementById("status").innerText = "Invalid login";
+      }
     }
+
+  } catch (err) {
+    console.error(err);
+    document.getElementById("status").innerText = "Error connecting to server";
   }
 }
 </script>
