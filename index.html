@@ -124,8 +124,9 @@ async function submit() {
     const data = await res.json();
 
     if (data.success) {
-      // Redirect to another page
+      localStorage.setItem("user", email);  // ✅ save logged-in user
       window.location.href = "dashboard.html";
+    }
     } else {
       document.getElementById("status").innerText = "Invalid login";
     }
